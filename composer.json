@@ -1,0 +1,17 @@
+{
+    "name": "php-socket/php-socket",
+    "authors": [
+        {
+            "name": "Daison Carino",
+            "email": "daison12006013@gmail.com"
+        }
+    ],
+    "require": {
+        "cboden/ratchet": "0.3.*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Socket\\": "src/"
+        }
+    }
+}
