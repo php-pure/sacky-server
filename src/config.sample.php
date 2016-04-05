@@ -1,6 +1,6 @@
 <?php
 
-use Socket\Samples\Chat;
+use Socket\Samples\Sacky;
 use Ratchet\Http\Router;
 use Ratchet\Http\HttpServer;
 use Ratchet\WebSocket\WsServer;
@@ -9,8 +9,8 @@ use Ratchet\WebSocket\WsServer;
 # use when calling $socket = (new SocketManager)->classes([...]);
 return [
     'schat' => [
-        'component' => new HttpServer(new WsServer(new Chat)),
-        'port'     => '8080',
-        'address'  => '0.0.0.0',
+        'component' => new HttpServer(new WsServer(new Sacky)),
+        'port'      => '8080',
+        'address'   => '0.0.0.0',
     ],
 ];
