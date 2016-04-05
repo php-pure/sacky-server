@@ -21,9 +21,19 @@ class Sacky implements MessageComponentInterface
     {
         $parsedMsg = json_decode($msg, true);
 
+        # check $parsedMsg if has '__destroy__'
+        # unset the passed channel
+        if (isset($parsedMsg['__destroy__'])) {
+            echo "Destroying channel {$parsedMsg['__destroy__']} of {$from->resourceId}\n";
+            unset($this->clients[$from->resourceId]['channels'][$parsedMsg['__destroy__']]);
+
+            return;
+        }
+
         # check $parsedMsg if has '__listen__'
         # update the $this->clients
         if (isset($parsedMsg['__listen__'])) {
+            echo "Listening on channel {$parsedMsg['__listen__']} of {$from->resourceId}\n";
             $this->clients[$from->resourceId]['channels'][$parsedMsg['__listen__']] = true;
 
             return;
