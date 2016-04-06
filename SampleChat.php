@@ -8,72 +8,82 @@ use Socket\Interpreters\AbstractChannel;
  *
  * protected getConnections()       - Should return all the connected clients
  * protected getListeners($channel) - Should return all the listeners by channel name
- * protected emit()                  -
- * public    onEmit()                -
- * protected listen()                -
- * public    onListen()              -
- * protected destroy()               -
- * public    onDestroy()             -
  */
 class SampleChat extends AbstractChannel
 {
     /**
      * {@inheritdoc}
      */
-    public function onOpen(ConnectionInterface $client)
-    {
-        $this->connect($client);
+    // public function onOpen(ConnectionInterface $client)
+    // {
+    //     $this->connect($client);
 
-        echo "A new connection ({$client->resourceId})\n";
+    //     echo "A new connection ({$client->resourceId})\n";
+    // }
+
+    /**
+     * {@inheritdoc}
+     */
+    // public function onClose(ConnectionInterface $client)
+    // {
+    //     $this->destroy($client);
+
+    //     echo "Connection {$client->resourceId} has benn disconnected\n";
+    // }
+
+    /**
+     * {@inheritdoc}
+     */
+    // public function onError(ConnectionInterface $client, Exception $e)
+    // {
+    //     echo "An error has occurred: {$e->getMessage()}\n";
+
+    //     $conn->close();
+    // }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function onEmit($from, $message, $channel)
+    {
+        echo $message."\n";
+
+        $this->emit($from, $message, $channel);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function onClose(ConnectionInterface $client)
+    public function onListen($client, $channel, $message)
     {
-        $this->destroy($client);
-
-        echo "Connection {$client->resourceId} has disconnected\n";
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function onError(ConnectionInterface $client, Exception $e)
-    {
-        echo "An error has occurred: {$e->getMessage()}\n";
-
-        $conn->close();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function onEmit(ConnectionInterface $from, $msg, $channel)
-    {
-        echo $msg;
-
-        $this->emit($from, $msg, $channel);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function onListen(ConnectionInterface $client, $channel)
-    {
-        echo "Listening on channel {$channel} of {$client->resourceId}\n";
-
         $this->listen($client, $channel);
+
+        # in our js, we're passing 'name' in the object
+        $messageArr = json_decode($message, true);
+
+        if (isset($messageArr['name'])) {
+            echo "Client '{$messageArr['name']}' listens in channel '{$channel}'\n";
+            return;
+        }
+
+        echo "Listening on channel {$channel} by client {$client->resourceId}\n";
     }
 
     /**
      * {@inheritdoc}
      */
-    public function onDestroy(ConnectionInterface $client, $channel)
+    public function onLeave($client, $channel, $message)
     {
-        echo "Destroying channel {$channel} of {$client->resourceId}\n";
-
         $this->destroy($client, $channel);
+
+        # in our js, we're passing 'name' in the object
+        $messageArr = json_decode($message, true);
+
+        if (isset($messageArr['name'])) {
+            echo "Client '{$messageArr['name']}' leaves the channel '{$channel}'\n";
+            return;
+        }
+
+        echo "Leaving channel {$channel} by client {$client->resourceId}\n";
     }
 }

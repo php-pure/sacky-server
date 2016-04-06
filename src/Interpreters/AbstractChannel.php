@@ -43,36 +43,47 @@ abstract class AbstractChannel implements MessageComponentInterface
     /**
      * {@inheritdoc}
      */
-    public function onMessage(ConnectionInterface $from, $msg)
+    final public function onMessage(ConnectionInterface $from, $msg)
     {
         $parsedMsg = json_decode($msg, true);
-
-        # check $parsedMsg if has '__destroy__'
-        # unset the passed channel
-        if (isset($parsedMsg['__destroy__'])) {
-            $this->onDestroy($from, $parsedMsg['__destroy__']);
-            return;
-        }
 
         # check $parsedMsg if has '__listen__'
         # update the $this->clients
         if (isset($parsedMsg['__listen__'])) {
-            $this->onListen($from, $parsedMsg['__listen__']);
+            $rawMsg = $parsedMsg;
+            unset($rawMsg['__listen__']);
+
+            $this->onListen($from, $parsedMsg['__listen__'], json_encode($rawMsg));
             return;
         }
 
-        $this->onEmit($from, $msg, $parsedMsg['channel']);
+        # check $parsedMsg if has '__destroy__'
+        # unset the passed channel
+        if (isset($parsedMsg['__leave__'])) {
+            $rawMsg = $parsedMsg;
+            unset($rawMsg['__leave__']);
+
+            $this->onLeave($from, $parsedMsg['__leave__'], json_encode($rawMsg));
+            return;
+        }
+
+        $rawMsg = $parsedMsg;
+        unset($rawMsg['channel']);
+
+        $this->onEmit($from, json_encode($rawMsg), $parsedMsg['channel']);
     }
 
     /**
      * This connects the client in the stack
      *
      * @param mixed $client
-     * @return void
+     * @return mixed
      */
     public function connect(ConnectionInterface $client)
     {
         $this->clients[$client->resourceId]['socket'] = $client;
+
+        return $this;
     }
 
     /**
@@ -103,6 +114,11 @@ abstract class AbstractChannel implements MessageComponentInterface
     protected function listen(ConnectionInterface $client, $channel)
     {
         $this->clients[$client->resourceId]['channels'][$channel] = true;
+
+        # check if the index 'socket' exists, if not, pass it in
+        if (!isset($this->clients[$client->resourceId]['socket'])) {
+            $this->clients[$client->resourceId]['socket'] = $client;
+        }
     }
 
     /**
@@ -151,22 +167,6 @@ abstract class AbstractChannel implements MessageComponentInterface
     }
 
     /**
-     * When someone would like to listen on a channel
-     *
-     * @param string $channel
-     * @return void
-     */
-    abstract public function onListen(ConnectionInterface $client, $channel);
-
-    /**
-     * When someone would like to destroy a channel
-     *
-     * @param string $channel
-     * @return void
-     */
-    abstract public function onDestroy(ConnectionInterface $client, $channel);
-
-    /**
      * Triggered when someone sent a message
      *
      * @param mixed $from
@@ -174,5 +174,21 @@ abstract class AbstractChannel implements MessageComponentInterface
      * @param string $channel
      * @return void
      */
-    abstract public function onEmit(ConnectionInterface $from, $msg, $channel);
+    abstract function onEmit($from, $msg, $channel);
+
+    /**
+     * When someone would like to listen on a channel
+     *
+     * @param string $channel
+     * @return void
+     */
+    abstract function onListen($client, $channel, $message);
+
+    /**
+     * When someone would like to leave a channel
+     *
+     * @param string $channel
+     * @return void
+     */
+    abstract function onLeave($client, $channel, $message);
 }
