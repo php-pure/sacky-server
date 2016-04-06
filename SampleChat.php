@@ -6,7 +6,7 @@ use Socket\Interpreters\AbstractChannel;
 /**
  * @author  Daison Cariño <daison12006013@gmail.com>
  *
- * protected getConnections()       - Should return all the connected clients
+ * protected getClients()           - Should return all the connected clients
  * protected getListeners($channel) - Should return all the listeners by channel name
  */
 class SampleChat extends AbstractChannel
@@ -14,37 +14,7 @@ class SampleChat extends AbstractChannel
     /**
      * {@inheritdoc}
      */
-    // public function onOpen(ConnectionInterface $client)
-    // {
-    //     $this->connect($client);
-
-    //     echo "A new connection ({$client->resourceId})\n";
-    // }
-
-    /**
-     * {@inheritdoc}
-     */
-    // public function onClose(ConnectionInterface $client)
-    // {
-    //     $this->destroy($client);
-
-    //     echo "Connection {$client->resourceId} has benn disconnected\n";
-    // }
-
-    /**
-     * {@inheritdoc}
-     */
-    // public function onError(ConnectionInterface $client, Exception $e)
-    // {
-    //     echo "An error has occurred: {$e->getMessage()}\n";
-
-    //     $conn->close();
-    // }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function onEmit($from, $message, $channel)
+    public function beforeEmit($from, $channel, $message)
     {
         echo $message."\n";
 
@@ -54,7 +24,7 @@ class SampleChat extends AbstractChannel
     /**
      * {@inheritdoc}
      */
-    public function onListen($client, $channel, $message)
+    public function beforeListen($client, $channel, $message = null)
     {
         $this->listen($client, $channel);
 
@@ -72,7 +42,7 @@ class SampleChat extends AbstractChannel
     /**
      * {@inheritdoc}
      */
-    public function onLeave($client, $channel, $message)
+    public function beforeLeave($client, $channel, $message = null)
     {
         $this->destroy($client, $channel);
 

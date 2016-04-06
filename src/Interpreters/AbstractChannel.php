@@ -37,7 +37,7 @@ abstract class AbstractChannel implements MessageComponentInterface
     {
         echo "An error has occurred: {$e->getMessage()}\n";
 
-        $conn->close();
+        $client->close();
     }
 
     /**
@@ -53,7 +53,7 @@ abstract class AbstractChannel implements MessageComponentInterface
             $rawMsg = $parsedMsg;
             unset($rawMsg['__listen__']);
 
-            $this->onListen($from, $parsedMsg['__listen__'], json_encode($rawMsg));
+            $this->beforeListen($from, $parsedMsg['__listen__'], json_encode($rawMsg));
             return;
         }
 
@@ -63,14 +63,14 @@ abstract class AbstractChannel implements MessageComponentInterface
             $rawMsg = $parsedMsg;
             unset($rawMsg['__leave__']);
 
-            $this->onLeave($from, $parsedMsg['__leave__'], json_encode($rawMsg));
+            $this->beforeLeave($from, $parsedMsg['__leave__'], json_encode($rawMsg));
             return;
         }
 
         $rawMsg = $parsedMsg;
         unset($rawMsg['channel']);
 
-        $this->onEmit($from, json_encode($rawMsg), $parsedMsg['channel']);
+        $this->beforeEmit($from, $parsedMsg['channel'], json_encode($rawMsg));
     }
 
     /**
@@ -140,9 +140,9 @@ abstract class AbstractChannel implements MessageComponentInterface
     /**
      * Return all connected clients
      *
-     * @return [type] [description]
+     * @return mixed
      */
-    protected function getConnections()
+    protected function getClients()
     {
         return $this->clients;
     }
@@ -157,7 +157,7 @@ abstract class AbstractChannel implements MessageComponentInterface
     {
         $listeners = [];
 
-        foreach ($this->getConnections() as $resourceId => $client) {
+        foreach ($this->getClients() as $resourceId => $client) {
             if (isset($client['channels'][$channel])) {
                 $listeners[$resourceId] = $client;
             }
@@ -169,26 +169,30 @@ abstract class AbstractChannel implements MessageComponentInterface
     /**
      * Triggered when someone sent a message
      *
-     * @param mixed $from
-     * @param string $msg
+     * @param mixed $client
      * @param string $channel
+     * @param string $message
      * @return void
      */
-    abstract function onEmit($from, $msg, $channel);
+    abstract function beforeEmit($client, $channel, $message);
 
     /**
      * When someone would like to listen on a channel
      *
+     * @param mixed $client
      * @param string $channel
+     * @param string $message
      * @return void
      */
-    abstract function onListen($client, $channel, $message);
+    abstract function beforeListen($client, $channel, $message = null);
 
     /**
      * When someone would like to leave a channel
      *
+     * @param mixed $client
      * @param string $channel
+     * @param string $message
      * @return void
      */
-    abstract function onLeave($client, $channel, $message);
+    abstract function beforeLeave($client, $channel, $message = null);
 }
