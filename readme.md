@@ -10,6 +10,7 @@ Right now we have a single interpreter which handles a ``channel`` feature.
 - [Interpreters](#interpreters)
    - [Using AbstractChannel](#using-abstract_channel)
 - [Actual Testing](#actual-testing)
+- [Contribute](#contribute)
 
 ---
 
@@ -52,7 +53,7 @@ This is useful when you'll be creating a Service Provider from your framework su
 <a name="interpreters"></a>
 # Interpreters
 
-This lives all the abstract classes, it should be designed as a bridget/wrapper, it should be a unique way to handle informations came from browser's socket request.
+This lives all the abstract classes, it should be designed as a bridge/wrapper, it should have a unique way to handle informations came from browser's socket request.
 
 <a name="using-abstract_channel"></a>
 ### Using AbstractChannel
@@ -84,3 +85,9 @@ As we can't produce the test thru any BDD testing, I think this should be tested
 To start, clone this project [sacky-client](https://github.com/php-pure/sacky-client) or download it.
 
 Open **channel.html** from the ``sacky-client`` atleast 2 browser tabs for them to comunicate each other, a channel **#general** will be listened and should be printed inside your CLI console.
+
+---
+
+# Contribute
+
+I would love to see some class interpreters and a client requester in the sacky-client repo, it will really help us to enhance more this package having a lot of options to work around not just a channel base.
