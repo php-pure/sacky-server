@@ -74,17 +74,17 @@ The ``beforeLeave()`` will be triggered once someonce would like to leave a ``$c
 <a name="actual-testing"></a>
 # Actual Testing
 
-At first, you must run the ``tests.php`` inside the ``tests/`` folder, should be like this in your console
+At first, you must execute the file ``run`` inside the ``tests/`` folder, it should be like this in your console
 
 ```php
-php tests.php
+./run
 ```
 
-As we can't produce the test thru any BDD testing, I think this should be tested thru actual testing.
+As we can't produce any automated tests yet as it requires time to implement as well, I think this should be tested thru actual testing.
 
 To start, clone this project [sacky-client](https://github.com/php-pure/sacky-client) or download it.
 
-Open **channel.html** from the ``sacky-client`` atleast 2 browser tabs for them to comunicate each other, a channel **#general** will be listened and should be printed inside your CLI console.
+Open **channel.html** from the ``sacky-client`` atleast 2 browser tabs for them to communicate to each other, a channel **#general** will be listened and should be printed inside your CLI console.
 
 ---
 
